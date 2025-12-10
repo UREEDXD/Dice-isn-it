@@ -73,6 +73,7 @@
             padding: 15px; /* reduce padding */
         }
     }
+    
     @keyframes containerPulse {
         0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.1); }
         50% { box-shadow: 0 0 50px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(0, 255, 255, 0.2); }
@@ -403,12 +404,13 @@
         font-weight: bold;
     }
 
+
 </style>
 </head>
 <body>
     <!-- Menu Screen -->
     <div class="container menu" id="menuView">
-        <h1>🎲 DICE ISNT IT🎲</h1>
+        <h1>🎲 DICE ISNT IT 🎲</h1>
         <p class="subtitle">Test Your Luck & Skills</p>
         <div style="width: 100%;">
             <input type="text" class="username-input" id="usernameInput" placeholder="Enter Discord Username">
@@ -457,7 +459,7 @@
     <!-- Leaderboard Screen -->
     <div class="container leaderboard-view" id="leaderboardView">
         <h1>🏆 LEADERBOARD 🏆</h1>
-        <p class="subtitle">Top 10 Players</p>
+        <p class="subtitle">In future maybe :)</p>
         <table class="leaderboard-table">
             <thead>
                 <tr>
@@ -489,8 +491,8 @@
         </div>
         <div class="credits-box">
             <h3>Update</h3>
-            <p>Background Music | Sound Effects | Particle Effects | Animations</p>
-            <p>Full UI/UX Experience with Discord Integration Support</p>
+            <p>Particle Effects | Animations</p>
+            <p>Alpha Released</p>
         </div>
         <button class="back-btn" id="backFromCreditsBtn">BACK</button>
     </div>
@@ -500,7 +502,7 @@
     <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
     <audio id="lossSound" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
     <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3"></audio>
-    <audio id="bgMusic" loop src="https://foldr.space/d/Dice%20isnt%20it.mp3"></audio>
+    <audio id="bgMusic" loop src="https://pixabay.com/music/upbeat-casino-lottery-casino-gambling-music-406445/"></audio>
 
     <script>
         // DOM Elements
@@ -591,23 +593,15 @@
 
         // Menu Events
         startBtn.addEventListener("click", () => {
-    playClickSound();
-
-    // Check if username input is empty
-    if (!usernameInput.value.trim()) {
-        alert("Please enter your Discord username!");
-        return;
-    }
-
-    currentUsername = usernameInput.value.trim();
-
-    // Save username to localStorage
-    localStorage.setItem("diceUsername", currentUsername);
-
-    loadPlayerStats();
-    showView(gameView);
-});
-
+            playClickSound();
+            if (!usernameInput.value.trim()) {
+                alert("Please enter your Discord username!");
+                return;
+            }
+            currentUsername = usernameInput.value.trim();
+            loadPlayerStats();
+            showView(gameView);
+        });
 
         leaderboardBtn.addEventListener("click", () => {
             playClickSound();
@@ -835,14 +829,6 @@
 
         // Initial Setup
         usernameInput.focus();
-        // Auto-load username if saved
-        const savedUsername = localStorage.getItem("diceUsername");
-        if (savedUsername) {
-            currentUsername = savedUsername;
-            usernameInput.value = savedUsername;
-            usernameInput.style.display = "none"; // hide input since it's already set
-            startBtn.click(); // auto-start the game
-        }
     </script>
 </body>
 </html>
