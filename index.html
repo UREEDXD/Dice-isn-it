@@ -2,25 +2,37 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dice isnt it</title>
+<title>Dice Launcher</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        overflow: hidden;
     }
 
     body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f0f1e 100%);
-    color: #fff;
-    overflow-x: hidden;
-    padding: 20px; /* add some padding so container doesn't touch edges */
-}
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f0f1e 100%);
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        padding: 15px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 
     body::before {
         content: '';
@@ -32,197 +44,297 @@
         background: radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
                     radial-gradient(circle at 80% 80%, rgba(255, 0, 128, 0.1) 0%, transparent 50%);
         pointer-events: none;
-        animation: bgShift 15s ease-in-out infinite;
-        z-index: -1;
+        z-index: 0;
     }
 
-    @keyframes bgShift {
-        0%, 100% { filter: brightness(1); }
-        50% { filter: brightness(1.1); }
+    /* Modal overlay */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 10, 20, 0.95);
+        backdrop-filter: blur(10px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+        padding: 15px;
     }
 
-    .container {
-    max-width: 700px;
-    width: 100%; /* ensures container shrinks on small screens */
-    max-height: 100%; /* remove the 90vh restriction */
-    padding: 20px; /* reduce padding for smaller devices */
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* vertical centering */
-    text-align: center;
-}
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        h1 { font-size: 2rem; }
-        .subtitle { font-size: 0.8rem; }
-        .button-group button { font-size: 1rem; padding: 12px 25px; min-width: 120px; }
-        #dice { width: 120px; height: 120px; font-size: 3rem; }
-        .stats { grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+    .modal-overlay.active {
+        display: flex;
+        animation: fadeIn 0.3s ease-out;
     }
 
-    @media (max-width: 480px) {
-        h1 { font-size: 1.5rem; }
-        .subtitle { font-size: 0.7rem; }
-        .button-group button { padding: 10px 20px; font-size: 0.9rem; }
-        #dice { width: 100px; height: 100px; font-size: 2.5rem; }
-        .stats { grid-template-columns: 1fr; gap: 8px; padding: 10px; }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
-    @media (max-width: 480px) {
-        .container {
-            padding: 15px; /* reduce padding */
+
+    /* Modal container with responsive sizing */
+    .modal-container {
+        background: linear-gradient(135deg, rgba(0, 30, 60, 0.98) 0%, rgba(10, 20, 40, 0.98) 100%);
+        border-radius: 20px;
+        border: 2px solid #00ffff;
+        box-shadow: 0 0 40px rgba(0, 255, 255, 0.6);
+        padding: clamp(20px, 5vw, 35px);
+        width: 100%;
+        max-width: min(550px, 95vw);
+        max-height: min(85vh, 800px);
+        overflow-y: auto;
+        position: relative;
+        z-index: 1000;
+        animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+        from { 
+            opacity: 0; 
+            transform: translateY(40px) scale(0.95);
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0) scale(1);
         }
     }
-    
-    @keyframes containerPulse {
-        0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.1); }
-        50% { box-shadow: 0 0 50px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(0, 255, 255, 0.2); }
-    }
 
-    .menu {
+    /* Main container with responsive sizing */
+    .container {
+        width: 100%;
+        max-width: min(800px, 95vw);
+        padding: clamp(20px, 4vw, 30px);
         display: flex;
         flex-direction: column;
-        align-items: center;
-        gap: 20px;
+        justify-content: center;
+        text-align: center;
+        background: rgba(0, 20, 40, 0.7);
+        border-radius: 20px;
+        border: 2px solid rgba(0, 255, 255, 0.3);
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+        backdrop-filter: blur(15px);
+        z-index: 1;
+        position: relative;
     }
 
-    .game-view {
+    #menuView {
+        display: flex;
+    }
+
+    #gameView {
         display: none;
     }
 
-    .leaderboard-view {
-        display: none;
-    }
-
-    .credits-view {
-        display: none;
-    }
-
+    /* Responsive typography */
     h1 {
-        font-size: 3rem;
-        margin-bottom: 10px;
-        text-shadow: 0 0 20px cyan, 0 0 40px #00ffff;
-        animation: titleGlow 2s ease-in-out infinite;
-    }
-
-    @keyframes titleGlow {
-        0%, 100% { text-shadow: 0 0 20px cyan, 0 0 40px #00ffff; }
-        50% { text-shadow: 0 0 30px cyan, 0 0 60px #00ffff, 0 0 80px #0088ff; }
+        font-size: clamp(1.8rem, 7vw, 3rem);
+        margin-bottom: clamp(10px, 2vw, 15px);
+        text-shadow: 0 0 15px cyan, 0 0 30px #00ffff;
+        color: #00ffff;
+        font-weight: 800;
+        letter-spacing: 1px;
+        line-height: 1.2;
     }
 
     .subtitle {
         color: #00ffff;
-        margin-bottom: 30px;
-        font-size: 0.9rem;
-        letter-spacing: 2px;
+        margin-bottom: clamp(25px, 5vw, 35px);
+        font-size: clamp(0.8rem, 2.5vw, 1rem);
+        letter-spacing: 1px;
+        opacity: 0.85;
+        line-height: 1.4;
     }
 
+    /* Button groups */
     .button-group {
         display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin: 20px 0;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: clamp(12px, 2vw, 16px);
+        margin: clamp(20px, 3vw, 25px) 0;
         width: 100%;
     }
 
+    /* Responsive buttons */
     button {
-        padding: 15px 35px;
-        font-size: 1.1rem;
-        border: 2px solid #00ffff;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #00ffff 0%, #00aa88 100%);
-        color: #000;
+        padding: clamp(14px, 3vw, 18px) clamp(20px, 4vw, 30px);
+        font-size: clamp(0.95rem, 2.8vw, 1.2rem);
+        border: none;
+        border-radius: 15px;
         cursor: pointer;
-        font-weight: bold;
-        transition: all 0.3s ease;
+        font-weight: 700;
+        transition: all 0.2s ease;
         text-transform: uppercase;
         letter-spacing: 1px;
-        box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-        flex: 1;
-        min-width: 150px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 30px rgba(0, 255, 255, 0.6), 0 0 50px rgba(0, 255, 255, 0.3);
-        background: linear-gradient(135deg, #00ffff 0%, #00ff88 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 255, 255, 0.6);
     }
 
     button:active {
-        transform: scale(0.95);
+        transform: translateY(-1px);
     }
 
     button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        transform: none !important;
     }
 
+    .game-btn {
+        background: linear-gradient(135deg, #00ffff 0%, #0088ff 100%);
+        color: #000;
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
+    }
+
+    .game-btn:hover {
+        background: linear-gradient(135deg, #00ffff 0%, #00aaff 100%);
+    }
+
+    .fun-btn {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+    }
+
+    .fun-btn:hover {
+        background: linear-gradient(135deg, #ff8787 0%, #ff6b6b 100%);
+    }
+
+    .settings-btn {
+        background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+        color: #000;
+        box-shadow: 0 4px 15px rgba(255, 170, 0, 0.4);
+    }
+
+    .settings-btn:hover {
+        background: linear-gradient(135deg, #ffcc00 0%, #ffaa00 100%);
+    }
+
+    .credits-btn {
+        background: linear-gradient(135deg, #aa00ff 0%, #6b00ff 100%);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(170, 0, 255, 0.4);
+    }
+
+    .credits-btn:hover {
+        background: linear-gradient(135deg, #cc00ff 0%, #8800ff 100%);
+    }
+
+    /* Stats grid */
     .stats {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 15px;
-        margin: 20px 0;
-        padding: 20px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: clamp(12px, 2vw, 16px);
+        margin: clamp(25px, 4vw, 30px) 0;
+        padding: clamp(15px, 3vw, 20px);
         background: rgba(0, 50, 100, 0.3);
         border-radius: 15px;
         border: 2px solid #00ffff;
     }
 
-    .stat-box {
-        padding: 15px;
-        background: rgba(0, 100, 150, 0.2);
-        border-radius: 10px;
-        border: 1px solid #0099ff;
-        animation: statBounce 2s ease-in-out infinite;
+    @media (max-width: 480px) {
+        .stats {
+            grid-template-columns: 1fr;
+        }
     }
 
-    .stat-box:nth-child(1) { animation-delay: 0s; }
-    .stat-box:nth-child(2) { animation-delay: 0.2s; }
-    .stat-box:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes statBounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-5px); }
+    .stat-box {
+        padding: clamp(15px, 2.5vw, 20px);
+        background: linear-gradient(135deg, rgba(0, 100, 150, 0.3) 0%, rgba(0, 50, 100, 0.3) 100%);
+        border-radius: 12px;
+        border: 2px solid #0099ff;
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .stat-label {
-        font-size: 0.8rem;
+        font-size: clamp(0.7rem, 1.8vw, 0.85rem);
         color: #00ccff;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
+        margin-bottom: clamp(8px, 1.5vw, 10px);
+        font-weight: 600;
     }
 
     .stat-value {
-        font-size: 1.8rem;
-        font-weight: bold;
+        font-size: clamp(1.6rem, 4vw, 2.2rem);
+        font-weight: 900;
         color: #00ff88;
-        text-shadow: 0 0 10px #00ff88;
+        text-shadow: 0 0 15px #00ff88;
+        line-height: 1;
     }
 
+    /* Dice container */
     .dice-container {
-        margin: 30px 0;
+        margin: clamp(30px, 5vw, 40px) 0;
         perspective: 1000px;
     }
 
     #dice {
-        width: 150px;
-        height: 150px;
-        border-radius: 20px;
+        width: clamp(100px, 30vw, 180px);
+        height: clamp(100px, 30vw, 180px);
+        border-radius: 25px;
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 4rem;
+        font-size: clamp(2.5rem, 12vw, 5rem);
         margin: 0 auto;
-        border: 5px solid #00ffff;
-        transition: transform 0.3s ease;
-        box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1);
+        border: 4px solid #00ffff;
+        box-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
         cursor: pointer;
+        user-select: none;
+        transition: all 0.3s ease;
     }
 
+    #dice:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 60px rgba(0, 255, 255, 0.8);
+    }
+
+    #dice:active {
+        transform: scale(0.95);
+    }
+
+    /* Animation classes */
     .rolling {
-        animation: spin3d 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        animation: spin3d 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+    }
+
+    /* When animations are disabled */
+    body.no-animations #dice:hover {
+        transform: none !important;
+        box-shadow: 0 0 40px rgba(0, 255, 255, 0.5) !important;
+    }
+
+    body.no-animations .rolling {
+        animation: none !important;
+    }
+
+    body.no-animations button:hover {
+        transform: none !important;
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4) !important;
+    }
+
+    body.no-animations .modal-container {
+        animation: none !important;
+    }
+
+    body.no-animations .modal-overlay.active {
+        animation: none !important;
     }
 
     @keyframes spin3d {
@@ -233,36 +345,301 @@
         100% { transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg) scale(1); }
     }
 
+    /* Result text */
     #result {
-        font-size: 2rem;
-        margin-top: 20px;
-        height: 60px;
+        font-size: clamp(1.3rem, 4vw, 2.2rem);
+        margin: clamp(20px, 3vw, 25px) 0;
+        min-height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
         text-shadow: 0 0 15px #00ffff;
-        animation: resultPop 0.5s ease-out;
-    }
-
-    @keyframes resultPop {
-        0% { transform: scale(0.5); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
+        font-weight: bold;
+        line-height: 1.2;
     }
 
     .dialogue {
-        margin-top: 20px;
-        font-size: 1rem;
+        margin-top: clamp(15px, 2.5vw, 20px);
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
         color: #ffaa00;
-        min-height: 30px;
-        animation: dialogueSlide 0.5s ease-out;
+        min-height: 40px;
         font-style: italic;
+        text-shadow: 0 0 10px rgba(255, 170, 0, 0.6);
+        line-height: 1.4;
     }
 
-    @keyframes dialogueSlide {
-        0% { opacity: 0; transform: translateY(-10px); }
-        100% { opacity: 1; transform: translateY(0); }
+    /* Username input */
+    .username-input {
+        width: 100%;
+        padding: clamp(12px, 3vw, 16px);
+        margin: clamp(15px, 2.5vw, 20px) 0;
+        border: 3px solid #00ffff;
+        border-radius: 12px;
+        background: rgba(0, 50, 100, 0.3);
+        color: #00ffff;
+        font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+        text-align: center;
+        font-weight: 700;
+        outline: none;
+        transition: all 0.3s ease;
+        min-height: 50px;
     }
 
+    .username-input:focus {
+        border-color: #00ff88;
+        box-shadow: 0 0 25px rgba(0, 255, 136, 0.5);
+        transform: scale(1.02);
+    }
+
+    .username-input::placeholder {
+        color: rgba(0, 255, 255, 0.6);
+    }
+
+    .current-user {
+        color: #00ff88;
+        font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+        margin-bottom: clamp(15px, 2vw, 20px);
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+        padding: clamp(10px, 1.5vw, 12px) clamp(15px, 2.5vw, 20px);
+        background: rgba(0, 100, 150, 0.3);
+        border-radius: 10px;
+        display: inline-block;
+        border: 2px solid #00ff88;
+    }
+
+    /* Settings group */
+    .settings-group {
+        background: rgba(0, 50, 100, 0.4);
+        padding: clamp(15px, 3vw, 20px);
+        border-radius: 15px;
+        border: 2px solid #00ffff;
+        margin: clamp(15px, 2.5vw, 20px) 0;
+    }
+
+    .setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: clamp(12px, 2vw, 15px) 0;
+        border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        min-height: 55px;
+    }
+
+    .setting-item:last-child {
+        border-bottom: none;
+    }
+
+    .setting-label {
+        font-size: clamp(0.95rem, 2.2vw, 1rem);
+        color: #00ffff;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: clamp(55px, 8vw, 60px);
+        height: clamp(28px, 4vw, 30px);
+        flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: clamp(20px, 3vw, 22px);
+        width: clamp(20px, 3vw, 22px);
+        left: clamp(3px, 0.5vw, 4px);
+        bottom: clamp(3px, 0.5vw, 4px);
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background: linear-gradient(135deg, #00ff88 0%, #00aa66 100%);
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(clamp(25px, 4vw, 27px));
+    }
+
+    /* Improved close button */
+    .modal-close {
+        position: absolute;
+        top: clamp(12px, 2vw, 15px);
+        right: clamp(12px, 2vw, 15px);
+        background: rgba(255, 71, 87, 0.15);
+        border: 2px solid #ff4757;
+        color: #ff4757;
+        font-size: clamp(1.3rem, 2.5vw, 1.6rem);
+        cursor: pointer;
+        width: clamp(40px, 6vw, 45px);
+        height: clamp(40px, 6vw, 45px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s;
+        z-index: 1001;
+        font-weight: bold;
+        padding: 0;
+    }
+
+    .modal-close:hover {
+        background: rgba(255, 71, 87, 0.3);
+        transform: rotate(90deg) scale(1.1);
+        border-color: #ff6b6b;
+        color: #ff6b6b;
+        box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+    }
+
+    .modal-close:active {
+        transform: rotate(90deg) scale(0.95);
+    }
+
+    /* Credits content */
+    .credits-content {
+        background: rgba(0, 100, 150, 0.3);
+        padding: clamp(15px, 2.5vw, 18px);
+        border-radius: 12px;
+        border: 2px solid #ffaa00;
+        margin: clamp(12px, 2vw, 15px) 0;
+    }
+
+    .credits-content h3 {
+        color: #ffaa00;
+        margin-bottom: clamp(8px, 1.5vw, 10px);
+        font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+    }
+
+    .credits-content p {
+        color: #80e5ff;
+        font-size: clamp(0.85rem, 2vw, 0.95rem);
+        margin-bottom: clamp(4px, 1vw, 5px);
+        line-height: 1.4;
+    }
+
+    /* Error message style */
+    .error-message {
+        color: #ff4757;
+        font-size: clamp(0.85rem, 2vw, 0.95rem);
+        margin: clamp(8px, 1.5vw, 10px) 0;
+        padding: clamp(8px, 1.5vw, 10px);
+        background: rgba(255, 71, 87, 0.1);
+        border-radius: 8px;
+        border: 1px solid #ff4757;
+        animation: shake 0.5s ease-in-out;
+        line-height: 1.3;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-3px); }
+        75% { transform: translateX(3px); }
+    }
+
+    body.no-animations .error-message {
+        animation: none !important;
+    }
+
+    /* Last username suggestion */
+    .last-user-suggestion {
+        color: #00ff88;
+        font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+        margin: clamp(8px, 1.5vw, 10px) 0;
+        padding: clamp(8px, 1.5vw, 10px);
+        background: rgba(0, 255, 136, 0.1);
+        border-radius: 8px;
+        border: 1px solid #00ff88;
+        line-height: 1.3;
+    }
+
+    .last-user-suggestion .clickable {
+        color: #00ffff;
+        text-decoration: underline;
+        cursor: pointer;
+        margin-left: 4px;
+        font-weight: bold;
+    }
+
+    .last-user-suggestion .clickable:hover {
+        color: #ffaa00;
+    }
+
+    /* Streak indicator */
+    .streak-indicator {
+        display: none;
+        background: rgba(255, 170, 0, 0.2);
+        padding: clamp(12px, 2vw, 15px);
+        border-radius: 10px;
+        margin: clamp(15px, 2.5vw, 20px) 0;
+        border: 2px solid #ffaa00;
+        color: #ffaa00;
+        text-shadow: 0 0 10px #ffaa00;
+        font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+        font-weight: bold;
+        line-height: 1.2;
+    }
+
+    .streak-indicator.active {
+        display: block;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.01); }
+        100% { transform: scale(1); }
+    }
+
+    body.no-animations .streak-indicator.active {
+        animation: none !important;
+    }
+
+    /* Auto-save notification */
+    .auto-save-notification {
+        position: fixed;
+        bottom: clamp(15px, 3vw, 20px);
+        right: clamp(15px, 3vw, 20px);
+        background: rgba(0, 255, 255, 0.1);
+        border: 1px solid #00ffff;
+        color: #00ffff;
+        padding: clamp(8px, 1.5vw, 10px) clamp(12px, 2vw, 15px);
+        border-radius: 8px;
+        font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+        opacity: 0;
+        transform: translateY(15px);
+        transition: all 0.3s;
+        z-index: 100;
+        max-width: 200px;
+        text-align: center;
+    }
+
+    .auto-save-notification.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Popup styles */
     .popup {
         position: fixed;
         top: 50%;
@@ -270,162 +647,149 @@
         transform: translate(-50%, -50%);
         background: linear-gradient(135deg, #00ffff 0%, #00aa88 100%);
         color: #000;
-        padding: 30px;
+        padding: clamp(20px, 4vw, 25px) clamp(30px, 5vw, 40px);
         border-radius: 15px;
-        font-size: 1.5rem;
+        font-size: clamp(1.3rem, 3vw, 1.6rem);
         font-weight: bold;
-        box-shadow: 0 0 50px rgba(0, 255, 255, 0.6);
+        box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+        z-index: 1000;
         animation: popupBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        z-index: 100;
+        text-align: center;
+        max-width: min(400px, 90vw);
     }
 
     @keyframes popupBounce {
-        0% { transform: translate(-50%, -50%) scale(0); }
-        50% { transform: translate(-50%, -50%) scale(1.1); }
-        100% { transform: translate(-50%, -50%) scale(1); }
+        0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+        70% { transform: translate(-50%, -50%) scale(1.05); }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
     }
 
-    .streak {
-        background: rgba(255, 170, 0, 0.2);
-        padding: 10px;
-        border-radius: 10px;
-        margin-top: 15px;
-        border: 2px solid #ffaa00;
-        color: #ffaa00;
-        text-shadow: 0 0 10px #ffaa00;
+    body.no-animations .popup {
+        animation: none !important;
     }
 
-    .leaderboard-table {
-        width: 100%;
-        margin: 20px 0;
-        border-collapse: collapse;
-    }
-
-    .leaderboard-table thead {
-        background: rgba(0, 150, 255, 0.3);
-        border: 2px solid #00ffff;
-    }
-
-    .leaderboard-table th {
-        padding: 12px;
-        color: #00ffff;
-        text-align: left;
-        font-weight: bold;
-    }
-
-    .leaderboard-table td {
-        padding: 12px;
-        border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-        background: rgba(0, 50, 100, 0.1);
-    }
-
-    .leaderboard-table tr:hover {
-        background: rgba(0, 100, 150, 0.3);
-    }
-
-    .rank {
-        color: #ffaa00;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-
-    .rank.gold { color: #ffd700; }
-    .rank.silver { color: #c0c0c0; }
-    .rank.bronze { color: #cd7f32; }
-
-    .username-input {
-        width: 100%;
-        padding: 12px;
-        margin: 15px 0;
-        border: 2px solid #00ffff;
-        border-radius: 10px;
-        background: rgba(0, 50, 100, 0.3);
-        color: #00ffff;
-        font-size: 1rem;
+    /* Fun modal specific styles */
+    .fun-modal-content {
         text-align: center;
-        font-weight: bold;
+        padding: clamp(20px, 4vw, 30px);
     }
 
-    .username-input::placeholder {
-        color: rgba(0, 255, 255, 0.5);
+    .fun-modal-content .emoji {
+        font-size: clamp(3rem, 10vw, 4rem);
+        margin-bottom: clamp(15px, 3vw, 20px);
     }
 
-    .credits-box {
-        background: rgba(0, 100, 150, 0.2);
-        padding: 20px;
-        border-radius: 10px;
-        border: 2px solid #ffaa00;
-        margin: 20px 0;
-        text-align: left;
+    /* Custom scrollbar */
+    .modal-container::-webkit-scrollbar {
+        width: 8px;
     }
 
-    .credits-box h3 {
-        color: #ffaa00;
-        margin-bottom: 10px;
-        text-shadow: 0 0 10px #ffaa00;
+    .modal-container::-webkit-scrollbar-track {
+        background: rgba(0, 50, 100, 0.3);
+        border-radius: 4px;
     }
 
-    .credits-box p {
-        color: #00ffff;
-        margin: 8px 0;
-        font-size: 1rem;
+    .modal-container::-webkit-scrollbar-thumb {
+        background: #00ffff;
+        border-radius: 4px;
     }
 
-    audio {
-        display: none;
+    .modal-container::-webkit-scrollbar-thumb:hover {
+        background: #00ff88;
     }
 
-    .particle {
-        position: fixed;
-        pointer-events: none;
-        font-size: 2rem;
-        animation: float-up 1s ease-out forwards;
-        z-index: 50;
+    /* Landscape optimization */
+    @media (max-height: 600px) and (orientation: landscape) {
+        .container {
+            padding: 15px;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        .button-group {
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 20px;
+            min-height: 45px;
+        }
+
+        .stats {
+            margin: 15px 0;
+            padding: 15px;
+        }
+
+        .dice-container {
+            margin: 20px 0;
+        }
+
+        #dice {
+            width: 100px;
+            height: 100px;
+        }
     }
 
-    @keyframes float-up {
-        0% { opacity: 1; transform: translateY(0) translateX(0); }
-        100% { opacity: 0; transform: translateY(-100px) translateX(var(--tx, 0px)); }
+    /* Extra small devices */
+    @media (max-width: 350px) {
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        .container {
+            padding: 15px;
+        }
+
+        button {
+            font-size: 0.9rem;
+            padding: 12px 16px;
+        }
+
+        .modal-container {
+            padding: 20px 15px;
+        }
     }
-
-    .back-btn {
-        background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%) !important;
-        margin-top: 20px;
-        width: 100%;
-    }
-
-    .back-btn:hover {
-        background: linear-gradient(135deg, #ff8787 0%, #ff6b6b 100%) !important;
-    }
-
-    .label {
-        color: #00ffff;
-        margin-top: 15px;
-        font-weight: bold;
-    }
-
-
 </style>
 </head>
 <body>
     <!-- Menu Screen -->
-    <div class="container menu" id="menuView">
-        <h1>🎲 DICE ISNT IT 🎲</h1>
+    <div class="container" id="menuView">
+        <h1>🎲 DICE ISN'T IT 🎲</h1>
         <p class="subtitle">Test Your Luck & Skills</p>
-        <div style="width: 100%;">
-            <input type="text" class="username-input" id="usernameInput" placeholder="Enter Discord Username">
+
+        <div style="width: 100%; margin-bottom: 10px;">
+            <input type="text" class="username-input" id="usernameInput" 
+                   placeholder="Enter Discord Username">
+            <div id="lastUserSuggestion" class="last-user-suggestion"></div>
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
         </div>
-        <div class="button-group" style="flex-direction: column;">
-            <button id="startBtn">START GAME</button>
-            <button id="leaderboardBtn">LEADERBOARD</button>
-            <button id="creditsBtn">CREDITS</button>
+
+        <div class="button-group">
+            <button id="gamesBtn" class="game-btn">🎮 GAMES</button>
+            <button id="funBtn" class="fun-btn">🎉 FUN</button>
+            <button id="settingsBtn" class="settings-btn">⚙️ SETTINGS</button>
+            <button id="creditsBtn" class="credits-btn">⭐ CREDITS</button>
+        </div>
+    </div>
+
+    <!-- Games Modal -->
+    <div class="modal-overlay" id="gamesModal">
+        <div class="modal-container">
+            <button class="modal-close" id="closeGames">&times;</button>
+            <h2 style="color: #00ffff; margin-bottom: 25px; text-align: center; font-size: clamp(1.5rem, 4vw, 1.8rem);">🎮 SELECT A GAME</h2>
+
+            <div class="button-group">
+                <button id="startDiceBtn" class="game-btn">🎲 DICE ISN'T IT</button>
+                <button class="game-btn" disabled style="opacity: 0.5; cursor: not-allowed;">🚀 COMING SOON</button>
+            </div>
         </div>
     </div>
 
     <!-- Game Screen -->
-    <div class="container game-view" id="gameView">
-        <h1>🎲 DICE ISNT IT 🎲</h1>
+    <div class="container" id="gameView">
+        <h1>🎲 DICE ISN'T IT 🎲</h1>
         <p class="subtitle">Test Your Luck & Skills</p>
+        <div class="current-user" id="currentUserDisplay"></div>
 
         <div class="stats">
             <div class="stat-box">
@@ -443,294 +807,639 @@
         </div>
 
         <div class="dice-container">
-            <div id="dice">🎲</div>
-        </div>
-
-        <div class="button-group">
-            <button id="rollBtn">ROLL DICE</button>
-            <button id="saveBtn">SAVE & EXIT</button>
+            <div id="dice" role="button" aria-label="Roll dice">🎲</div>
         </div>
 
         <div id="result">Click ROLL to start!</div>
-        <div class="streak" id="streakInfo" style="display: none;"></div>
+        <div class="streak-indicator" id="streakIndicator"></div>
         <div class="dialogue" id="dialogue"></div>
-    </div>
 
-    <!-- Leaderboard Screen -->
-    <div class="container leaderboard-view" id="leaderboardView">
-        <h1>🏆 LEADERBOARD 🏆</h1>
-        <p class="subtitle">In future maybe :)</p>
-        <table class="leaderboard-table">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Username</th>
-                    <th>Wins</th>
-                    <th>Losses</th>
-                    <th>Streak</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboardBody">
-            </tbody>
-        </table>
-        <button class="back-btn" id="backFromLeaderboardBtn">BACK</button>
-    </div>
-
-    <!-- Credits Screen -->
-    <div class="container credits-view" id="creditsView">
-        <h1>⭐ CREDITS ⭐</h1>
-        <div class="credits-box">
-            <h3>👑 Main Coder</h3>
-            <p>UREEDXD</p>
-
-            <h3>🎨 Supporter</h3>
-            <p>IMAGINATOR</p>
-
-            <h3>🎯 MLG Supporter</h3>
-            <p>Noobda</p>
+        <div class="button-group">
+            <button id="rollBtn" class="game-btn">🎲 ROLL DICE</button>
+            <button id="saveBtn" class="settings-btn">💾 SAVE & EXIT</button>
+            <button id="changeUserBtn" class="fun-btn">🔄 CHANGE USER</button>
         </div>
-        <div class="credits-box">
-            <h3>Update</h3>
-            <p>Particle Effects | Animations</p>
-            <p>Alpha Released</p>
-        </div>
-        <button class="back-btn" id="backFromCreditsBtn">BACK</button>
     </div>
 
-    <!-- Sound Effects -->
-    <audio id="rollSound" src="https://cdn.pixabay.com/download/audio/2023/03/03/audio_17a0db94f3.mp3?filename=dice-rolling-112941.mp3"></audio>
-    <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
-    <audio id="lossSound" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
-    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3"></audio>
-    <audio id="bgMusic" loop src="https://pixabay.com/music/upbeat-casino-lottery-casino-gambling-music-406445/"></audio>
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-container">
+            <button class="modal-close" id="closeSettings">&times;</button>
+            <h2 style="color: #00ffff; margin-bottom: 20px; text-align: center; font-size: clamp(1.5rem, 4vw, 1.8rem);">⚙️ SETTINGS</h2>
+
+            <div class="settings-group">
+                <div class="setting-item">
+                    <span class="setting-label">Enable Animations</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleAnimations" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-label">Enable Sound</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleSound" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-label">Auto-Save</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggleAutoSave" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="saveSettingsBtn" class="settings-btn">💾 SAVE SETTINGS</button>
+                <button id="resetStatsBtn" class="fun-btn">🔄 RESET STATS</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credits Modal -->
+    <div class="modal-overlay" id="creditsModal">
+        <div class="modal-container">
+            <button class="modal-close" id="closeCredits">&times;</button>
+            <h2 style="color: #00ffff; margin-bottom: 20px; text-align: center; font-size: clamp(1.5rem, 4vw, 1.8rem);">⭐ CREDITS</h2>
+
+            <div class="credits-content">
+                <h3>👑 Main Coder</h3>
+                <p>UREEDXD</p>
+            </div>
+
+            <div class="credits-content">
+                <h3>🎨 Supporter</h3>
+                <p>IMAGINATOR</p>
+            </div>
+
+            <div class="credits-content">
+                <h3>🎯 MLG Supporter</h3>
+                <p>Noobda</p>
+            </div>
+
+            <div class="credits-content" style="border-color: #00ffff;">
+                <h3 style="color: #00ffff;">🎮 Game Features</h3>
+                <p>✨ Smooth Animations & Effects</p>
+                <p>📱 Mobile & Desktop Optimized</p>
+                <p>💾 Individual Save System</p>
+                <p>🏆 Stats Tracking</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-save notification -->
+    <div class="auto-save-notification" id="autoSaveNotification">💾 Auto-saved!</div>
+
+    <audio id="rollSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-dice-roll-1994.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="winSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="lossSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="clickSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
+        // Configuration
+        const CONFIG = {
+            STORAGE_KEYS: {
+                PLAYER_PREFIX: 'dice_player_',
+                SETTINGS: 'dice_settings',
+                LAST_USER: 'dice_last_user'
+            },
+            WIN_THRESHOLD: 4,
+            AUTO_SAVE_INTERVAL: 10000, // 10 seconds
+            STREAK_RESET_ON_LOSS: true
+        };
+
         // DOM Elements
-        const menuView = document.getElementById("menuView");
-        const gameView = document.getElementById("gameView");
-        const leaderboardView = document.getElementById("leaderboardView");
-        const creditsView = document.getElementById("creditsView");
-
-        const usernameInput = document.getElementById("usernameInput");
-        const startBtn = document.getElementById("startBtn");
-        const leaderboardBtn = document.getElementById("leaderboardBtn");
-        const creditsBtn = document.getElementById("creditsBtn");
-        const backFromLeaderboardBtn = document.getElementById("backFromLeaderboardBtn");
-        const backFromCreditsBtn = document.getElementById("backFromCreditsBtn");
-
-        const dice = document.getElementById("dice");
-        const resultText = document.getElementById("result");
-        const rollBtn = document.getElementById("rollBtn");
-        const saveBtn = document.getElementById("saveBtn");
-        const dialogueBox = document.getElementById("dialogue");
-        const winsEl = document.getElementById("wins");
-        const lossesEl = document.getElementById("losses");
-        const streakEl = document.getElementById("streak");
-        const streakInfo = document.getElementById("streakInfo");
-        const leaderboardBody = document.getElementById("leaderboardBody");
-
-        const rollSound = document.getElementById("rollSound");
-        const winSound = document.getElementById("winSound");
-        const lossSound = document.getElementById("lossSound");
-        const clickSound = document.getElementById("clickSound");
-        const bgMusic = document.getElementById("bgMusic");
-
-        let currentUsername = "";
-        let stats = {
-            wins: 0,
-            losses: 0,
-            currentStreak: 0,
-            maxStreak: 0,
-            lastWon: false
+        const elements = {
+            views: {
+                menu: document.getElementById("menuView"),
+                game: document.getElementById("gameView")
+            },
+            modals: {
+                games: document.getElementById("gamesModal"),
+                settings: document.getElementById("settingsModal"),
+                credits: document.getElementById("creditsModal")
+            },
+            inputs: {
+                username: document.getElementById("usernameInput"),
+                toggleAnimations: document.getElementById("toggleAnimations"),
+                toggleSound: document.getElementById("toggleSound"),
+                toggleAutoSave: document.getElementById("toggleAutoSave")
+            },
+            messages: {
+                lastUser: document.getElementById("lastUserSuggestion"),
+                error: document.getElementById("errorMessage")
+            },
+            buttons: {
+                games: document.getElementById("gamesBtn"),
+                fun: document.getElementById("funBtn"),
+                settings: document.getElementById("settingsBtn"),
+                credits: document.getElementById("creditsBtn"),
+                closeGames: document.getElementById("closeGames"),
+                closeSettings: document.getElementById("closeSettings"),
+                closeCredits: document.getElementById("closeCredits"),
+                startDice: document.getElementById("startDiceBtn"),
+                saveSettings: document.getElementById("saveSettingsBtn"),
+                resetStats: document.getElementById("resetStatsBtn"),
+                changeUser: document.getElementById("changeUserBtn"),
+                roll: document.getElementById("rollBtn"),
+                save: document.getElementById("saveBtn")
+            },
+            game: {
+                dice: document.getElementById("dice"),
+                result: document.getElementById("result"),
+                dialogue: document.getElementById("dialogue"),
+                wins: document.getElementById("wins"),
+                losses: document.getElementById("losses"),
+                streak: document.getElementById("streak"),
+                streakIndicator: document.getElementById("streakIndicator"),
+                currentUserDisplay: document.getElementById("currentUserDisplay")
+            },
+            audio: {
+                roll: document.getElementById("rollSound"),
+                win: document.getElementById("winSound"),
+                loss: document.getElementById("lossSound"),
+                click: document.getElementById("clickSound")
+            },
+            notification: document.getElementById("autoSaveNotification")
         };
 
-        let leaderboard = JSON.parse(localStorage.getItem("diceLeaderboard")) || [];
-
-        const dialogues = {
-            win: [
-                "🌟 LEGENDARY! You're on fire!",
-                "✨ Absolutely CRUSHING it!",
-                "🔥 That's what champions do!",
-                "⚡ UNSTOPPABLE FORCE detected!",
-                "💎 PRISTINE execution!",
-                "🚀 THROUGH THE ROOF!"
-            ],
-            loss: [
-                "😤 Better luck next time, warrior!",
-                "🎯 Close one! Try again!",
-                "💪 Shake it off and retry!",
-                "🌊 Every master was once a beginner!",
-                "🎪 The game is afoot!",
-                "⚔️ Your comeback awaits!"
-            ],
-            neutral: [
-                "Ready to roll?",
-                "Feeling lucky?",
-                "Let's see what fate brings!",
-                "The dice are waiting...",
-                "Another spin coming?"
-            ]
+        // Game State
+        let gameState = {
+            currentUsername: "",
+            stats: {
+                wins: 0,
+                losses: 0,
+                currentStreak: 0,
+                maxStreak: 0,
+                lastWon: false,
+                totalRolls: 0
+            },
+            settings: {
+                animations: true,
+                sound: true,
+                autoSave: true
+            },
+            autoSaveTimer: null,
+            isRolling: false
         };
 
-        // Initialize background music
-        bgMusic.volume = 0.3;
-        bgMusic.play().catch(() => {});
+        // Dialogues
+        const DIALOGUES = {
+            win: ["Nice roll! 🎲", "You win! ⭐", "Great job! ✨", "Winner! 🏆", "Lucky! 🍀"],
+            loss: ["Try again! 🔄", "Next time! ⏭️", "Almost! 😅", "Bad luck! 😞", "Keep trying! 💪"],
+            neutral: ["Ready to roll?", "Feeling lucky?", "Let's play! 🎮", "Roll the dice!", "Your turn!"]
+        };
 
-        // Button Click Sounds
-        function playClickSound() {
-            clickSound.currentTime = 0;
-            clickSound.play().catch(() => {});
+        // Initialize game
+        function initializeGame() {
+            console.log("🎲 Initializing Dice Game...");
+
+            // Load settings
+            loadSettings();
+
+            // Load last username
+            loadLastUsername();
+
+            // Setup event listeners
+            setupEventListeners();
+
+            // Apply initial settings
+            applySettings();
+
+            console.log("✅ Game initialized successfully!");
         }
 
-        // Show/Hide Views
-        function showView(view) {
-            menuView.style.display = "none";
-            gameView.style.display = "none";
-            leaderboardView.style.display = "none";
-            creditsView.style.display = "none";
-            view.style.display = "flex";
+        // Load settings from localStorage
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem(CONFIG.STORAGE_KEYS.SETTINGS);
+                if (saved) {
+                    gameState.settings = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.log("❌ Error loading settings:", e);
+            }
+
+            // Update toggle switches
+            elements.inputs.toggleAnimations.checked = gameState.settings.animations;
+            elements.inputs.toggleSound.checked = gameState.settings.sound;
+            elements.inputs.toggleAutoSave.checked = gameState.settings.autoSave;
         }
 
-        // Menu Events
-        startBtn.addEventListener("click", () => {
-            playClickSound();
-            if (!usernameInput.value.trim()) {
-                alert("Please enter your Discord username!");
+        // Load last username and show suggestion
+        function loadLastUsername() {
+            try {
+                const lastUsername = localStorage.getItem(CONFIG.STORAGE_KEYS.LAST_USER);
+                if (lastUsername && lastUsername.trim()) {
+                    elements.messages.lastUser.innerHTML = `
+                        Last user: <strong>${lastUsername}</strong>
+                        <span class="clickable" onclick="useLastUsername()">[Use]</span>
+                    `;
+                    elements.messages.lastUser.style.display = 'block';
+                } else {
+                    elements.messages.lastUser.style.display = 'none';
+                }
+            } catch (e) {
+                console.log("❌ Error loading last username:", e);
+            }
+        }
+
+        // Use last username function
+        window.useLastUsername = function() {
+            const lastUsername = localStorage.getItem(CONFIG.STORAGE_KEYS.LAST_USER);
+            if (lastUsername) {
+                elements.inputs.username.value = lastUsername;
+                elements.messages.lastUser.style.display = 'none';
+            }
+        };
+
+        // Save settings to localStorage
+        function saveSettings() {
+            try {
+                localStorage.setItem(CONFIG.STORAGE_KEYS.SETTINGS, JSON.stringify(gameState.settings));
+                console.log("✅ Settings saved");
+                return true;
+            } catch (e) {
+                console.log("❌ Error saving settings:", e);
+                return false;
+            }
+        }
+
+        // Apply settings to game
+        function applySettings() {
+            // Apply animation setting
+            if (gameState.settings.animations) {
+                document.body.classList.remove('no-animations');
+            } else {
+                document.body.classList.add('no-animations');
+            }
+
+            // Set audio volume
+            const volume = gameState.settings.sound ? 0.5 : 0;
+            Object.values(elements.audio).forEach(audio => {
+                audio.volume = volume;
+            });
+
+            // Start auto-save if enabled
+            if (gameState.settings.autoSave && gameState.currentUsername) {
+                startAutoSave();
+            } else {
+                stopAutoSave();
+            }
+        }
+
+        // Show modal
+        function showModal(modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close modal
+        function closeModal(modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Start the dice game
+        function startGame() {
+            // Get username
+            const username = elements.inputs.username.value.trim();
+
+            // Validate username
+            if (!username) {
+                showError("⚠️ Please enter a username!");
                 return;
             }
-            currentUsername = usernameInput.value.trim();
+
+            // Save username
+            gameState.currentUsername = username;
+            localStorage.setItem(CONFIG.STORAGE_KEYS.LAST_USER, username);
+
+            // Hide error message if it was shown
+            hideError();
+
+            // Switch to game view
+            elements.views.menu.style.display = 'none';
+            elements.views.game.style.display = 'flex';
+
+            // Update display
+            elements.game.currentUserDisplay.textContent = `Playing as: ${username}`;
+
+            // Load player stats
             loadPlayerStats();
-            showView(gameView);
-        });
 
-        leaderboardBtn.addEventListener("click", () => {
-            playClickSound();
-            renderLeaderboard();
-            showView(leaderboardView);
-        });
+            // Show welcome message
+            showDialogue(`Welcome ${username}! Roll the dice to start playing!`);
 
-        creditsBtn.addEventListener("click", () => {
-            playClickSound();
-            showView(creditsView);
-        });
-
-        backFromLeaderboardBtn.addEventListener("click", () => {
-            playClickSound();
-            showView(menuView);
-        });
-
-        backFromCreditsBtn.addEventListener("click", () => {
-            playClickSound();
-            showView(menuView);
-        });
-
-        // Load player stats from leaderboard
-        function loadPlayerStats() {
-            const player = leaderboard.find(p => p.username === currentUsername);
-            if (player) {
-                stats = {
-                    wins: player.wins,
-                    losses: player.losses,
-                    currentStreak: player.streak,
-                    maxStreak: player.streak,
-                    lastWon: false
-                };
-            } else {
-                stats = {
-                    wins: 0,
-                    losses: 0,
-                    currentStreak: 0,
-                    maxStreak: 0,
-                    lastWon: false
-                };
+            // Start auto-save if enabled
+            if (gameState.settings.autoSave) {
+                startAutoSave();
             }
-            updateStats();
-            showDialogue(getRandomDialogue('neutral'));
+
+            console.log("🎮 Game started for:", username);
         }
 
-        // Save player stats
-        function savePlayerStats() {
-            playClickSound();
-            const existingIndex = leaderboard.findIndex(p => p.username === currentUsername);
+        // Show error message
+        function showError(message) {
+            elements.messages.error.textContent = message;
+            elements.messages.error.style.display = 'block';
+
+            // Auto-hide error after 3 seconds
+            setTimeout(hideError, 3000);
+        }
+
+        // Hide error message
+        function hideError() {
+            elements.messages.error.style.display = 'none';
+        }
+
+        // Load player stats
+        function loadPlayerStats() {
+            const playerKey = CONFIG.STORAGE_KEYS.PLAYER_PREFIX + gameState.currentUsername.toLowerCase();
+            try {
+                const saved = localStorage.getItem(playerKey);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    gameState.stats = data.stats || gameState.stats;
+                    console.log("📂 Loaded stats for:", gameState.currentUsername, gameState.stats);
+                } else {
+                    console.log("👤 New player:", gameState.currentUsername);
+                }
+            } catch (e) {
+                console.log("❌ Error loading player data:", e);
+            }
+
+            updateStatsDisplay();
+        }
+
+        // Update stats display
+        function updateStatsDisplay() {
+            elements.game.wins.textContent = gameState.stats.wins;
+            elements.game.losses.textContent = gameState.stats.losses;
+            elements.game.streak.textContent = gameState.stats.maxStreak;
+
+            // Update streak indicator
+            updateStreakIndicator();
+        }
+
+        // Update streak indicator
+        function updateStreakIndicator() {
+            const streakIndicator = elements.game.streakIndicator;
+            if (gameState.stats.currentStreak > 1) {
+                streakIndicator.textContent = `🔥 ${gameState.stats.currentStreak} ${gameState.stats.lastWon ? 'WIN' : 'LOSS'} STREAK 🔥`;
+                streakIndicator.classList.add('active');
+            } else {
+                streakIndicator.classList.remove('active');
+            }
+        }
+
+        // Save player data
+        function savePlayerData() {
+            if (!gameState.currentUsername) return false;
+
+            const playerKey = CONFIG.STORAGE_KEYS.PLAYER_PREFIX + gameState.currentUsername.toLowerCase();
             const playerData = {
-                username: currentUsername,
-                wins: stats.wins,
-                losses: stats.losses,
-                streak: stats.maxStreak
+                stats: gameState.stats,
+                lastSaved: new Date().toISOString()
             };
 
-            if (existingIndex >= 0) {
-                leaderboard[existingIndex] = playerData;
-            } else {
-                leaderboard.push(playerData);
-            }
-
-            leaderboard.sort((a, b) => b.wins - a.wins || b.streak - a.streak);
-            leaderboard = leaderboard.slice(0, 10);
-
-            localStorage.setItem("diceLeaderboard", JSON.stringify(leaderboard));
-            showView(menuView);
-        }
-
-        // Render Leaderboard
-        function renderLeaderboard() {
-            leaderboardBody.innerHTML = "";
-            const sorted = [...leaderboard].sort((a, b) => b.wins - a.wins || b.streak - a.streak);
-
-            sorted.forEach((player, index) => {
-                const rankEmoji = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`;
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td><span class="rank">${rankEmoji}</span></td>
-                    <td><strong>${player.username}</strong></td>
-                    <td style="color: #00ff88;">⭐ ${player.wins}</td>
-                    <td style="color: #ff4444;">❌ ${player.losses}</td>
-                    <td style="color: #ffaa00;">🔥 ${player.streak}</td>
-                `;
-                leaderboardBody.appendChild(row);
-            });
-        }
-
-        // Game Functions
-        function updateStats() {
-            winsEl.textContent = stats.wins;
-            lossesEl.textContent = stats.losses;
-            streakEl.textContent = stats.maxStreak;
-            updateStreakInfo();
-        }
-
-        function updateStreakInfo() {
-            if (stats.currentStreak > 1) {
-                streakInfo.style.display = 'block';
-                const streakType = stats.lastWon ? '✨ WIN' : '💥 LOSS';
-                streakInfo.textContent = `🔥 ${stats.currentStreak} ${streakType} STREAK 🔥`;
-            } else {
-                streakInfo.style.display = 'none';
+            try {
+                localStorage.setItem(playerKey, JSON.stringify(playerData));
+                console.log("💾 Saved data for:", gameState.currentUsername);
+                return true;
+            } catch (e) {
+                console.log("❌ Error saving player data:", e);
+                return false;
             }
         }
 
-        function getRandomDialogue(type) {
-            const arr = dialogues[type] || dialogues.neutral;
-            return arr[Math.floor(Math.random() * arr.length)];
+        // Show auto-save notification
+        function showAutoSaveNotification() {
+            elements.notification.classList.add('show');
+            setTimeout(() => {
+                elements.notification.classList.remove('show');
+            }, 2000);
+        }
+
+        // Auto-save functions
+        function startAutoSave() {
+            stopAutoSave(); // Clear any existing timer
+
+            gameState.autoSaveTimer = setInterval(() => {
+                if (gameState.currentUsername && gameState.settings.autoSave) {
+                    if (savePlayerData()) {
+                        showAutoSaveNotification();
+                    }
+                }
+            }, CONFIG.AUTO_SAVE_INTERVAL);
+
+            console.log("⏱️ Auto-save started");
+        }
+
+        function stopAutoSave() {
+            if (gameState.autoSaveTimer) {
+                clearInterval(gameState.autoSaveTimer);
+                gameState.autoSaveTimer = null;
+                console.log("⏱️ Auto-save stopped");
+            }
+        }
+
+        // Roll dice function
+        function rollDice() {
+            if (gameState.isRolling) return;
+
+            gameState.isRolling = true;
+            elements.buttons.roll.disabled = true;
+            gameState.stats.totalRolls++;
+
+            // Play roll sound if enabled
+            if (gameState.settings.sound) {
+                try {
+                    elements.audio.roll.currentTime = 0;
+                    elements.audio.roll.play();
+                } catch (e) {
+                    console.log("❌ Audio play failed");
+                }
+            }
+
+            // Add rolling animation if enabled
+            if (gameState.settings.animations) {
+                elements.game.dice.classList.add('rolling');
+            }
+
+            elements.game.result.textContent = 'Rolling...';
+
+            // Generate random roll
+            const roll = Math.floor(Math.random() * 6) + 1;
+            const isWin = roll >= CONFIG.WIN_THRESHOLD;
+
+            // Delay for animation
+            const animationTime = gameState.settings.animations ? 800 : 300;
+
+            setTimeout(() => {
+                // Remove rolling class if it was added
+                if (gameState.settings.animations) {
+                    elements.game.dice.classList.remove('rolling');
+                }
+
+                elements.game.dice.textContent = '🎲';
+
+                // Handle win or loss
+                if (isWin) {
+                    handleWin(roll);
+                } else {
+                    handleLoss(roll);
+                }
+
+                // Update display and enable button
+                updateStatsDisplay();
+                elements.buttons.roll.disabled = false;
+                gameState.isRolling = false;
+
+                // Auto-save if enabled
+                if (gameState.settings.autoSave) {
+                    savePlayerData();
+                }
+
+            }, animationTime);
+        }
+
+        // Handle win
+        function handleWin(roll) {
+            gameState.stats.wins++;
+
+            // Update streak
+            if (gameState.stats.lastWon) {
+                gameState.stats.currentStreak++;
+            } else {
+                gameState.stats.currentStreak = 1;
+                gameState.stats.lastWon = true;
+            }
+
+            // Update max streak
+            if (gameState.stats.currentStreak > gameState.stats.maxStreak) {
+                gameState.stats.maxStreak = gameState.stats.currentStreak;
+            }
+
+            elements.game.result.textContent = `🎉 WIN! (Rolled: ${roll}) 🎉`;
+            elements.game.result.style.color = '#00ff88';
+
+            if (gameState.settings.sound) {
+                try {
+                    elements.audio.win.currentTime = 0;
+                    elements.audio.win.play();
+                } catch (e) {}
+            }
+
+            showDialogue(getRandomDialogue('win'));
+
+            // Streak notifications
+            if (gameState.stats.currentStreak === 3) {
+                showPopup('🔥 3 WIN STREAK! 🔥');
+            } else if (gameState.stats.currentStreak === 5) {
+                showPopup('⚡ 5 WIN STREAK! LEGENDARY! ⚡');
+            }
+        }
+
+        // Handle loss
+        function handleLoss(roll) {
+            gameState.stats.losses++;
+
+            // Update streak - RESET on loss if configured
+            if (CONFIG.STREAK_RESET_ON_LOSS) {
+                gameState.stats.currentStreak = 0;
+            } else {
+                if (!gameState.stats.lastWon) {
+                    gameState.stats.currentStreak++;
+                } else {
+                    gameState.stats.currentStreak = 1;
+                }
+            }
+            gameState.stats.lastWon = false;
+
+            elements.game.result.textContent = `💀 LOSE! (Rolled: ${roll}) 💀`;
+            elements.game.result.style.color = '#ff6666';
+
+            if (gameState.settings.sound) {
+                try {
+                    elements.audio.loss.currentTime = 0;
+                    elements.audio.loss.play();
+                } catch (e) {}
+            }
+
+            showDialogue(getRandomDialogue('loss'));
+        }
+
+        // Reset player stats
+        function resetPlayerStats() {
+            if (!confirm("⚠️ Are you sure you want to reset your stats? This cannot be undone!")) {
+                return;
+            }
+
+            gameState.stats = {
+                wins: 0,
+                losses: 0,
+                currentStreak: 0,
+                maxStreak: 0,
+                lastWon: false,
+                totalRolls: 0
+            };
+
+            updateStatsDisplay();
+            savePlayerData();
+            showDialogue("Stats have been reset!");
+            closeModal(elements.modals.settings);
+        }
+
+        // Save and exit to menu
+        function saveAndExit() {
+            if (gameState.currentUsername) {
+                if (savePlayerData()) {
+                    showPopup('💾 Game Saved!');
+                }
+            }
+
+            // Stop auto-save
+            stopAutoSave();
+
+            // Return to menu
+            elements.views.game.style.display = 'none';
+            elements.views.menu.style.display = 'flex';
+
+            // Reset current user
+            gameState.currentUsername = "";
+
+            // Reload last username suggestion
+            loadLastUsername();
+        }
+
+        // Utility functions
+        function playClickSound() {
+            if (gameState.settings.sound) {
+                try {
+                    elements.audio.click.currentTime = 0;
+                    elements.audio.click.play();
+                } catch (e) {}
+            }
         }
 
         function showDialogue(text) {
-            dialogueBox.textContent = text;
-            dialogueBox.style.animation = 'none';
-            setTimeout(() => {
-                dialogueBox.style.animation = 'dialogueSlide 0.5s ease-out';
-            }, 10);
+            elements.game.dialogue.textContent = text;
         }
 
-        function createParticle(x, y, emoji) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.textContent = emoji;
-            particle.style.left = x + 'px';
-            particle.style.top = y + 'px';
-            particle.style.setProperty('--tx', (Math.random() - 0.5) * 100 + 'px');
-            document.body.appendChild(particle);
-            setTimeout(() => particle.remove(), 1000);
+        function getRandomDialogue(type) {
+            const arr = DIALOGUES[type] || DIALOGUES.neutral;
+            return arr[Math.floor(Math.random() * arr.length)];
         }
 
         function showPopup(text) {
@@ -738,97 +1447,214 @@
             popup.className = 'popup';
             popup.textContent = text;
             document.body.appendChild(popup);
-            setTimeout(() => popup.remove(), 1500);
-        }
-
-        function playSoundEffect(sound) {
-            sound.currentTime = 0;
-            sound.play().catch(() => {});
-        }
-
-        // Roll Button
-        rollBtn.addEventListener("click", () => {
-            if (rollBtn.disabled) return;
-            rollBtn.disabled = true;
-
-            const roll = Math.floor(Math.random() * 6) + 1;
-
-            playSoundEffect(rollSound);
-            dice.classList.add("rolling");
-            resultText.textContent = "Rolling...";
 
             setTimeout(() => {
-                dice.classList.remove("rolling");
-                dice.textContent = ['🎲', '🎲', '🎲', '🎲', '🎲', '🎲'][roll - 1] || '🎲';
+                if (popup.parentNode) {
+                    popup.parentNode.removeChild(popup);
+                }
+            }, 1500);
+        }
 
-                const isWin = roll >= 4;
-                const resultEmoji = isWin ? '⭐' : '❌';
-                const resultColor = isWin ? 'lime' : 'red';
+        // Fun button feature
+        function showFunFeature() {
+            const funModal = document.createElement('div');
+            funModal.className = 'modal-overlay';
+            funModal.innerHTML = `
+                <div class="modal-container">
+                    <button class="modal-close" id="closeFunModal">&times;</button>
+                    <h2 style="color: #00ffff; margin-bottom: 25px; text-align: center; font-size: clamp(1.5rem, 4vw, 1.8rem);">🎉 COMING SOON!</h2>
+                    <div class="fun-modal-content">
+                        <div class="emoji">✨</div>
+                        <p style="color: #80e5ff; font-size: clamp(1rem, 2.5vw, 1.2rem); margin-bottom: 20px; line-height: 1.4;">
+                            Exciting new features are on the way!
+                        </p>
+                        <p style="color: #ffaa00; font-size: clamp(0.9rem, 2.2vw, 1rem); line-height: 1.4;">
+                            Stay tuned for awesome updates! 🚀
+                        </p>
+                    </div>
+                </div>
+            `;
 
-                if (isWin) {
-                    stats.wins++;
-                    if (stats.lastWon) {
-                        stats.currentStreak++;
-                    } else {
-                        stats.currentStreak = 1;
-                        stats.lastWon = true;
-                    }
-                    stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+            document.body.appendChild(funModal);
+            showModal(funModal);
 
-                    resultText.textContent = `${resultEmoji} YOU WIN! (${roll}) ${resultEmoji}`;
-                    playSoundEffect(winSound);
-                    showDialogue(getRandomDialogue('win'));
+            // Add close event listener to the fun modal
+            const closeBtn = document.getElementById('closeFunModal');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    funModal.remove();
+                    document.body.style.overflow = 'auto';
+                });
+            }
 
-                    for (let i = 0; i < 5; i++) {
-                        setTimeout(() => {
-                            createParticle(
-                                Math.random() * window.innerWidth,
-                                Math.random() * window.innerHeight,
-                                ['⭐', '✨', '🌟', '💫', '🎉'][i]
-                            );
-                        }, i * 50);
-                    }
+            // Close when clicking outside
+            funModal.addEventListener('click', function(e) {
+                if (e.target === funModal) {
+                    funModal.remove();
+                    document.body.style.overflow = 'auto';
+                }
+            });
 
-                    if (stats.currentStreak === 3) {
-                        showPopup('🔥 3 WIN STREAK! 🔥');
-                    } else if (stats.currentStreak === 5) {
-                        showPopup('⚡ 5 WIN STREAK! LEGENDARY! ⚡');
-                    }
-                } else {
-                    stats.losses++;
-                    if (!stats.lastWon) {
-                        stats.currentStreak++;
-                    } else {
-                        stats.currentStreak = 1;
-                        stats.lastWon = false;
-                    }
+            // Close with escape key
+            function handleEscape(e) {
+                if (e.key === 'Escape' && funModal.parentNode) {
+                    funModal.remove();
+                    document.body.style.overflow = 'auto';
+                    document.removeEventListener('keydown', handleEscape);
+                }
+            }
+            document.addEventListener('keydown', handleEscape);
+        }
 
-                    resultText.textContent = `${resultEmoji} YOU LOSE! (${roll}) ${resultEmoji}`;
-                    playSoundEffect(lossSound);
-                    showDialogue(getRandomDialogue('loss'));
+        // Setup all event listeners
+        function setupEventListeners() {
+            console.log("🔗 Setting up event listeners...");
 
-                    for (let i = 0; i < 3; i++) {
-                        setTimeout(() => {
-                            createParticle(
-                                Math.random() * window.innerWidth,
-                                Math.random() * window.innerHeight,
-                                '💥'
-                            );
-                        }, i * 100);
-                    }
+            // Menu buttons
+            elements.buttons.games.addEventListener('click', () => {
+                playClickSound();
+                showModal(elements.modals.games);
+            });
+
+            elements.buttons.fun.addEventListener('click', () => {
+                playClickSound();
+                showFunFeature();
+            });
+
+            elements.buttons.settings.addEventListener('click', () => {
+                playClickSound();
+                showModal(elements.modals.settings);
+            });
+
+            elements.buttons.credits.addEventListener('click', () => {
+                playClickSound();
+                showModal(elements.modals.credits);
+            });
+
+            // Modal close buttons - FIXED: Use proper event listeners
+            elements.buttons.closeGames.addEventListener('click', (e) => {
+                e.stopPropagation();
+                playClickSound();
+                closeModal(elements.modals.games);
+            });
+
+            elements.buttons.closeSettings.addEventListener('click', (e) => {
+                e.stopPropagation();
+                playClickSound();
+                closeModal(elements.modals.settings);
+            });
+
+            elements.buttons.closeCredits.addEventListener('click', (e) => {
+                e.stopPropagation();
+                playClickSound();
+                closeModal(elements.modals.credits);
+            });
+
+            // Games modal - Start Dice Game
+            elements.buttons.startDice.addEventListener('click', () => {
+                playClickSound();
+                closeModal(elements.modals.games);
+                startGame();
+            });
+
+            // Settings buttons
+            elements.buttons.saveSettings.addEventListener('click', () => {
+                playClickSound();
+
+                // Update settings from toggles
+                gameState.settings.animations = elements.inputs.toggleAnimations.checked;
+                gameState.settings.sound = elements.inputs.toggleSound.checked;
+                gameState.settings.autoSave = elements.inputs.toggleAutoSave.checked;
+
+                // Save and apply settings
+                saveSettings();
+                applySettings();
+
+                // Show confirmation
+                showPopup('✅ Settings saved!');
+                closeModal(elements.modals.settings);
+            });
+
+            elements.buttons.resetStats.addEventListener('click', resetPlayerStats);
+
+            // Game buttons
+            elements.buttons.changeUser.addEventListener('click', saveAndExit);
+
+            elements.buttons.roll.addEventListener('click', rollDice);
+
+            elements.buttons.save.addEventListener('click', () => {
+                playClickSound();
+                saveAndExit();
+            });
+
+            // Dice click handler
+            elements.game.dice.addEventListener('click', rollDice);
+
+            // Touch event for mobile dice
+            elements.game.dice.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+
+            elements.game.dice.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                if (!gameState.isRolling) {
+                    rollDice();
+                }
+            }, { passive: false });
+
+            // Keyboard support
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && elements.views.menu.style.display !== 'none') {
+                    startGame();
                 }
 
-                resultText.style.color = resultColor;
-                updateStats();
-                rollBtn.disabled = false;
-            }, 800);
-        });
+                if ((e.key === ' ' || e.key === 'Enter') && 
+                    elements.views.game.style.display !== 'none' && 
+                    !gameState.isRolling) {
+                    rollDice();
+                }
 
-        // Save Button
-        saveBtn.addEventListener("click", savePlayerStats);
+                if (e.key === 'Escape') {
+                    if (elements.views.game.style.display !== 'none') {
+                        saveAndExit();
+                    } else if (elements.modals.games.classList.contains('active')) {
+                        closeModal(elements.modals.games);
+                    } else if (elements.modals.settings.classList.contains('active')) {
+                        closeModal(elements.modals.settings);
+                    } else if (elements.modals.credits.classList.contains('active')) {
+                        closeModal(elements.modals.credits);
+                    }
+                }
+            });
 
-        // Initial Setup
-        usernameInput.focus();
+            // Close modals when clicking outside - FIXED
+            elements.modals.games.addEventListener('click', (e) => {
+                if (e.target === elements.modals.games) {
+                    closeModal(elements.modals.games);
+                }
+            });
+
+            elements.modals.settings.addEventListener('click', (e) => {
+                if (e.target === elements.modals.settings) {
+                    closeModal(elements.modals.settings);
+                }
+            });
+
+            elements.modals.credits.addEventListener('click', (e) => {
+                if (e.target === elements.modals.credits) {
+                    closeModal(elements.modals.credits);
+                }
+            });
+
+            console.log("✅ Event listeners setup complete!");
+        }
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', initializeGame);
+
+        // Also run initialization when window loads
+        window.addEventListener('load', initializeGame);
     </script>
 </body>
 </html>
